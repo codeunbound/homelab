@@ -189,7 +189,7 @@ After=network-online.target
 What=$NEW_PATH
 Where=$MOUNT_POINT
 Type=cifs
-Options=credentials=$HOME/.smbcredentials,vers=3.0,iocharset=utf8,uid=0,gid=0,file_mode=0777,dir_mode=0777,nounix
+Options=credentials=$HOME/.smbcredentials,_netdev,x-systemd.automount,noatime,uid=100999,gid=100991,dir_mode=0777,file_mode=0777
 
 [Install]
 # WantedBy=multi-user.target

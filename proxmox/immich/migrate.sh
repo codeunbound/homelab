@@ -1,4 +1,7 @@
+#!/bin/bash
 set -e  # Stop on error
+
+# Configuration
 UPLOAD_SRC="/opt/immich/upload"
 UPLOAD_DST="/mnt/photos/immich"
 ENV_FILE="/opt/immich/.env"
@@ -8,8 +11,15 @@ systemctl stop immich-web immich-ml
 
 echo "📄 Checking if target directory exists..."
 if [ ! -d "$UPLOAD_DST" ]; then
-    echo "❌ Directory $UPLOAD_DST does not exist. Please mount your NAS first!"
-    exit 1
+    echo "   Directory $UPLOAD_DST does not exist. Attempting to create it..."
+    if ! mkdir -p "$UPLOAD_DST"; then
+        echo "❌ ERROR: Failed to create directory $UPLOAD_DST."
+        echo "   Please check your permissions or mount status."
+        exit 1
+    fi
+    echo "   ✅ Directory created."
+else
+    echo "   ✅ Directory exists."
 fi
 
 echo "⚙️ Updating .env file..."
@@ -31,14 +41,6 @@ ln -sf "$UPLOAD_DST" /opt/immich/app/machine-learning/upload
 
 echo "🔒 Adjusting ownership..."
 chown -R immich:immich /opt/immich
-
-# echo "🧠 Updating media paths in the Immich database..."
-# cd /opt/immich/app/bin
-# if [ -f "./immich-admin" ]; then
-#     ./immich-admin change-media-location || echo "⚠️ Command may have failed — please verify manually."
-# else
-#     echo "⚠️ immich-admin not found, skipping this step."
-# fi
 
 echo "🚀 Restarting Immich services..."
 systemctl start immich-ml immich-web
