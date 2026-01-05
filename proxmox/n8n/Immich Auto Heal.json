@@ -1,0 +1,838 @@
+{
+  "name": "TEMPLATE - Immich Auto Heal",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        -240
+      ],
+      "id": "4ee21d16-0be0-420a-8dbf-5f1c4724da6a",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e4fca813-a808-4c1c-8311-48ca7dd1c917",
+              "name": "immich_ip",
+              "value": "YOUR_IMMICH_IP",
+              "type": "string"
+            },
+            {
+              "id": "16dc876c-e800-4785-94da-b4b62598b9f0",
+              "name": "immich_port",
+              "value": "2283",
+              "type": "string"
+            },
+            {
+              "id": "78607790-a8bf-463a-8965-2c48997cde06",
+              "name": "immich_health_api",
+              "value": "api/server/ping",
+              "type": "string"
+            },
+            {
+              "id": "e8cac5aa-5179-4b75-87de-b166186ab074",
+              "name": "nas_ip",
+              "value": "YOUR_NAS_IP",
+              "type": "string"
+            },
+            {
+              "id": "1c7969a2-c8fb-408d-9607-6457c69525f0",
+              "name": "nas_api",
+              "value": "api/v2.0/system/info",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        -240
+      ],
+      "id": "f8ad31b6-5ad1-408f-a61c-eec3b09c1a80",
+      "name": "Set Globals"
+    },
+    {
+      "parameters": {
+        "url": "=http://{{ $json.immich_ip }}:{{ $json.immich_port }}/{{ $json.immich_health_api }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        448,
+        -240
+      ],
+      "id": "5b762555-5095-4eb9-b3d7-1f1c86440105",
+      "name": "Immich Health API"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "13966469-7154-4ea6-9811-5b2ae5cf61a4",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        -240
+      ],
+      "id": "31d6b2fd-ed31-46e2-9176-7f62096a3dbe",
+      "name": "Check Immich"
+    },
+    {
+      "parameters": {
+        "url": "=http://{{ $('Set Globals').item.json.nas_ip }}/{{ $('Set Globals').item.json.nas_api }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        896,
+        -240
+      ],
+      "id": "5129d8a8-30e5-4ce6-a562-e97c170a297c",
+      "name": "Check NAS Health"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "235c0927-e947-4bf1-81f9-5fbcf1374139",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1120,
+        -240
+      ],
+      "id": "9fc9f969-72a4-480d-a92d-deb3b1f9d961",
+      "name": "CheckNAS"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e817d6a9-c565-4b6f-95ff-31455cc2511b",
+              "name": "mount_path",
+              "value": "/path/to/your/mount",
+              "type": "string"
+            },
+            {
+              "id": "90e228ef-89be-4abf-b1f9-d0e209d8ce12",
+              "name": "container_id",
+              "value": "100",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1344,
+        -240
+      ],
+      "id": "5e6ccc45-f159-4e90-aa0f-8d9431ae2dcb",
+      "name": "Set Mount Globals"
+    },
+    {
+      "parameters": {
+        "command": "=mount | grep {{ $json.mount_path }}"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        -240
+      ],
+      "id": "2a28d707-6b06-4e76-a235-18c09d990889",
+      "name": "Get Mounts"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0f2e45ba-2526-4cec-8eb5-c335519879bc",
+              "leftValue": "={{ $json.stdout.includes($('Set Mount Globals').item.json.mount_path) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1792,
+        -240
+      ],
+      "id": "fb40ab41-138e-4910-9403-dac5271785cc",
+      "name": "Check Mounts"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d051e301-fabb-42a8-98e0-2cf31b248b59",
+              "leftValue": "={{ $json.stdout.includes('stopped') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2240,
+        -240
+      ],
+      "id": "636ff791-813e-4f8a-9c9c-1bf23db56378",
+      "name": "Check Container Status"
+    },
+    {
+      "parameters": {
+        "url": "=http://{{ $('Set Globals').item.json.immich_ip }}:{{ $('Set Globals').item.json.immich_port }}/{{ $('Set Globals').item.json.immich_health_api }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4256,
+        -240
+      ],
+      "id": "1b1f1a69-211f-41dc-89e2-ec5f723312db",
+      "name": "Get Immich Health",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "26b056f9-b125-45f3-b82e-21068bde4b4e",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        4480,
+        -240
+      ],
+      "id": "49ed4df0-c611-48d5-a940-a78ce5b5c96d",
+      "name": "Final API Check"
+    },
+    {
+      "parameters": {
+        "command": "=pct stop  {{ $('Set Mount Globals').item.json.container_id }}"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        2464,
+        -144
+      ],
+      "id": "3b8609d2-086f-4368-ad4e-d22966296046",
+      "name": "Stop Container"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3136,
+        -224
+      ],
+      "id": "034878d0-f665-46e1-b288-abe483ae67f8",
+      "name": "Wait"
+    },
+    {
+      "parameters": {
+        "command": "=pct status {{ $('Set Mount Globals').item.json.container_id }}"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        2016,
+        -240
+      ],
+      "id": "ebee3e73-7dc8-4c93-9813-03a04645727b",
+      "name": "Get Container Status"
+    },
+    {
+      "parameters": {
+        "command": "=pct status {{ $('Set Mount Globals').item.json.container_id }}"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        3360,
+        -224
+      ],
+      "id": "52a89240-1ac7-4023-9c0c-9c32871a63c9",
+      "name": "Get Container Status1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d051e301-fabb-42a8-98e0-2cf31b248b59",
+              "leftValue": "={{ $json.stdout.includes('stopped') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3584,
+        -144
+      ],
+      "id": "b14346b9-a791-45e2-8f3e-745ecea93f88",
+      "name": "Check Container Status1"
+    },
+    {
+      "parameters": {
+        "command": "=pct start  {{ $('Set Mount Globals').item.json.container_id }}"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        3808,
+        -384
+      ],
+      "id": "fd38d1b8-6e09-48c7-b0e2-9c002b1e3808",
+      "name": "Start Container",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "command": "=pct start  {{ $('Set Mount Globals').item.json.container_id }}"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        3808,
+        -144
+      ],
+      "id": "8fa8e689-be37-4bd6-ba70-f6b24d381f89",
+      "name": "Start Container1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4032,
+        -240
+      ],
+      "id": "71ef59f1-28c5-4a88-bc60-1b14402905dc",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "Immich is up and running !!",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        4704,
+        -336
+      ],
+      "id": "05c6fd34-f7a9-4a0c-83b0-cd4755ccdf3a",
+      "name": "Success"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "Failed to start Immich",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        4704,
+        -144
+      ],
+      "id": "d6272a0c-768d-4952-8f90-2639070e322d",
+      "name": "Failure"
+    },
+    {
+      "parameters": {
+        "errorMessage": "n8n failed to fix Immich :("
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        4928,
+        -144
+      ],
+      "id": "8fd1e60a-a3ba-48fe-9120-eb343b4219b2",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "jsCode": "const iterations = 5;\nconst items = [];\n\nfor (let i = 0; i<iterations; i++){\n  items.push({json: {iteration_number: i + 1}})
+}\n\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2688,
+        -144
+      ],
+      "id": "c8ad76ec-308a-4132-9bdc-04cc154b048a",
+      "name": "Add Iterations"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2912,
+        -144
+      ],
+      "id": "da27a600-b271-4728-b810-6ecdc0e2e40d",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "content": "## Immich Auto-Heal Template Configuration\n\nWelcome! To get this workflow running, you'll need to configure a few things.\n\n**1. Global Variables (in the \"Set Globals\" and \"Set Mount Globals\" nodes):**\n- **immich_ip:** The IP address of your Immich server.\n- **nas_ip:** The IP address of your NAS.\n- **mount_path:** The full path to the network mount that Immich uses on the host machine (e.g. `/mnt/photos`).\n- **container_id:** The Proxmox Container ID (e.g. `100`) or Docker container name for your Immich instance.\n\n**2. Credentials:**\nWhen you import this workflow, n8n will show errors on several nodes. Click on each one and create or select the required credential:\n- **Check NAS Health:** Create a new \"Bearer Auth\" credential with an API key from your TrueNAS (or other NAS) instance.\n- **SSH Nodes (Get Mounts, etc.):** Create a new \"SSH Password\" or \"SSH Key\" credential to allow n8n to connect to your Proxmox/Docker host.\n- **Discord Nodes (Success/Failure):** Create a new \"Discord Webhook\" credential using the webhook URL from your Discord server.",
+        "height": 500,
+        "width": 500
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        -240
+      ],
+      "id": "b3e9a74f-37f2-45e3-85f0-6216f4d5475f",
+      "name": "Instructions"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Globals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Globals": {
+      "main": [
+        [
+          {
+            "node": "Immich Health API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Immich Health API": {
+      "main": [
+        [
+          {
+            "node": "Check Immich",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Immich": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Check NAS Health",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check NAS Health": {
+      "main": [
+        [
+          {
+            "node": "CheckNAS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CheckNAS": {
+      "main": [
+        [
+          {
+            "node": "Set Mount Globals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Mount Globals": {
+      "main": [
+        [
+          {
+            "node": "Get Mounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Mounts": {
+      "main": [
+        [
+          {
+            "node": "Check Mounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Mounts": {
+      "main": [
+        [
+          {
+            "node": "Get Container Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Container Status": {
+      "main": [
+        [
+          {
+            "node": "Start Container",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop Container",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Immich Health": {
+      "main": [
+        [
+          {
+            "node": "Final API Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Final API Check": {
+      "main": [
+        [
+          {
+            "node": "Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stop Container": {
+      "main": [
+        [
+          {
+            "node": "Add Iterations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Container Status": {
+      "main": [
+        [
+          {
+            "node": "Check Container Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get Container Status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Container Status1": {
+      "main": [
+        [
+          {
+            "node": "Check Container Status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Container": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Container Status1": {
+      "main": [
+        [
+          {
+            "node": "Start Container1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Container1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Get Immich Health",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Failure": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Iterations": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "id": "zHSfEFzra2vZh0PR",
+  "tags": []
+}

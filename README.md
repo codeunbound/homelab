@@ -29,6 +29,13 @@ I document the "Why" and "How" of this setup on YouTube. I move away from monoli
 * **Key Scripts:**
     * `check_and_mount_shares.sh` - Smart mounting logic.
 
+### 🤖 3. n8n - Immich Auto Heal
+**Status:** ✅ Active | [📂 Go to Guide](./proxmox/n8n/README.md)
+* **The Problem:** Immich service can go down if the NAS is rebooted or network shares are temporarily unavailable.
+* **The Fix:** An n8n workflow that automatically detects if Immich is down, verifies dependencies, and attempts a graceful restart.
+* **Key Files:**
+    * [`Immich Auto Heal.json`](./proxmox/n8n/Immich%20Auto%20Heal.json) - The n8n workflow template.
+
 ---
 
 ## 🔮 Coming Soon (Roadmap)
