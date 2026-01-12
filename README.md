@@ -36,6 +36,13 @@ I document the "Why" and "How" of this setup on YouTube. I move away from monoli
 * **Key Files:**
     * [`Immich Auto Heal.json`](./proxmox/n8n/Immich%20Auto%20Heal.json) - The n8n workflow template.
 
+### 🌐 4. WireGuard VPN Setup
+**Status:** ✅ Active | [📂 Go to Guide](./automation/wireguard/README.md)
+* **The Problem:** Needing secure, performant remote access to the homelab.
+* **The Fix:** A simplified WireGuard server setup script.
+* **Key Scripts:**
+    * [`wireguard-setup.sh`](./automation/wireguard/wireguard-setup.sh) - Installs and configures a WireGuard server.
+
 ---
 
 ## 🔮 Coming Soon (Roadmap)
