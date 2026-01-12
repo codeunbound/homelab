@@ -19,3 +19,9 @@ sudo ./wireguard-setup.sh
 ```
 
 **Note:** Always review scripts from the internet before running them on your system.
+
+---
+
+## Attribution
+
+The `wireguard-setup.sh` script is based on the excellent work by angristan: [https://github.com/angristan/wireguard-install](https://github.com/angristan/wireguard-install)
