@@ -7,10 +7,10 @@
 ## 📺 Start Here: The Architecture
 
 I document the "Why" and "How" of this setup on YouTube. I move away from monolithic VMs and instead decouple Compute from Storage.
-**Latest Video: The Ultimate Immich Setup (LXC + NAS Migration)**
+**Latest Video: Access Your Home Lab Anywhere: WireGuard + AWS EC2 Guide (No Fluff)**
 
-[![Watch the Video](https://img.youtube.com/vi/8NyTunwl9t8/maxresdefault.jpg)](https://youtu.be/8NyTunwl9t8)
-> *[Click to watch the full walkthrough.](https://youtu.be/8NyTunwl9t8)*
+[![Watch the Video](https://img.youtube.com/vi/qKlXEZgboFc/maxresdefault.jpg)](https://youtu.be/qKlXEZgboFc)
+> *[Click to watch the full walkthrough.](https://youtu.be/qKlXEZgboFc)*
 ---
 
 ## 📂 Project Modules
@@ -36,12 +36,13 @@ I document the "Why" and "How" of this setup on YouTube. I move away from monoli
 * **Key Files:**
     * [`Immich Auto Heal.json`](./proxmox/n8n/Immich%20Auto%20Heal.json) - The n8n workflow template.
 
-### 🌐 4. WireGuard VPN Setup
-**Status:** ✅ Active | [📂 Go to Guide](./automation/wireguard/README.md)
-* **The Problem:** Needing secure, performant remote access to the homelab.
-* **The Fix:** A simplified WireGuard server setup script.
-* **Key Scripts:**
-    * [`wireguard-setup.sh`](./automation/wireguard/wireguard-setup.sh) - Installs and configures a WireGuard server.
+### 🌐 4. Access Your Home Lab Anywhere: WireGuard + AWS EC2 Guide (No Fluff)
+**Status:** ✅ Active | [📂 Go to Guide](./proxmox/wireguard/README.md)
+* **The Problem:** Needing secure, performant remote access to the homelab, bypassing CGNAT.
+* **The Fix:** A hub-and-spoke VPN using WireGuard on a free-tier AWS EC2 instance.
+* **Key Components:**
+    * EC2 Hub Server
+    * Proxmox LXC Spoke
 
 ---
 
