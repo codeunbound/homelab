@@ -1,5 +1,3 @@
-# 🚀 Homelab
-
 > This repository contains the automation scripts, configuration files, and architecture notes for my personal homelab.
 >
 > **The Goal:** A one-stop, painless guide to building a production-ready homelab that balances **Performance** (LXC/NVMe) with **Reliability** (TrueNAS/ZFS).
